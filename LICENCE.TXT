@@ -1,0 +1,5 @@
+DO WHATEVER YOU WANT
+ 
+this package retrieves jokes from https://sv443.net/jokeapi/v2 (JokeAPI)
+
+Attribution appreciated but not required:)
