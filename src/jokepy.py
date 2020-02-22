@@ -13,6 +13,7 @@ class retjoke:
         self.type=type
         self.searchstring=searchstring
     def getjoke(self):
+        self.flags=self.flags+["racist","sexist","religious"] #adding flags two avoid offensive jokes.
         urlstring = "https://sv443.net/jokeapi/v2/joke"
         flagstring=""
         typp="akaka"
@@ -42,6 +43,7 @@ class retjoke:
                 urlstring=urlstring+"?contains="+self.searchstring
             else:
                 urlstring=urlstring+"&contains="+self.searchstring
+        print(urlstring)
         try:
             jr=requests.get(urlstring)
             jokereq=jr.json()
@@ -58,10 +60,12 @@ class retjoke:
 
 
 strst = "\n___________________\n\n\nCategories : Miscellaneous, Programming, Dark \n Black List: nsfw, religious, political, racist, sexist \nTypes :single, twopart\n you can add the seacrh string too\n\n\n"
-strst2="a=jk.retjoke(category=[],flags=[],type=[],searchstring="") #create object a \n"
+strst2="a=jk.retjoke(category=[],flags=[],type=[],searchstring="") #create object a ,racist ,sexist and religious jokes are filtered out by default please check the source at : https://github.com/aksty/Jokepy\n"
 strst3="a.getjoke() returns a list joke,second part(if the joke as two parts,otherwise null),json from url(dictionary) if everything works \notherwise returns list with error messages\n\n_____________________\n"
 
 info=strst+strst2+strst3
+
+
 
             
 
