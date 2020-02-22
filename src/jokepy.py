@@ -13,7 +13,9 @@ class retjoke:
         self.type=type
         self.searchstring=searchstring
     def getjoke(self):
-        self.flags=self.flags+["racist","sexist","religious"] #adding flags two avoid offensive jokes.
+        for i in ["racist","sexist","religious"]:
+            if i not in self.flags:
+                self.flags.append(i) #adding flags two avoid offensive jokes.
         urlstring = "https://sv443.net/jokeapi/v2/joke"
         flagstring=""
         typp="akaka"
@@ -64,13 +66,3 @@ strst2="a=jk.retjoke(category=[],flags=[],type=[],searchstring="") #create objec
 strst3="a.getjoke() returns a list joke,second part(if the joke as two parts,otherwise null),json from url(dictionary) if everything works \notherwise returns list with error messages\n\n_____________________\n"
 
 info=strst+strst2+strst3
-
-
-
-            
-
-                
-
-
-        
-
