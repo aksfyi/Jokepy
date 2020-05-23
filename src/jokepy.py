@@ -1,68 +1,152 @@
+#Api Documentation : https://sv443.net/jokeapi/v2
+
+
 import requests
+#api response is fetched using requests
 
-def isempty(urllist):
-    if len(urllist) == 0:
-        return True
-    else:
-        return False
 
-class retjoke:
-    def __init__(self,category=list(),flags=list(),type=list(),searchstring=""):
-        self.category=category
-        self.flags=flags
-        self.type=type
-        self.searchstring=searchstring
+#custom exceptions
+
+class InvalidCategoryException(ValueError):
+    pass
+
+class InvalidFlagException(ValueError):
+    pass
+
+class InvalidTypeException(ValueError):
+    pass
+
+class InvalidIdRangeException(ValueError):
+    pass
+
+class Jokepy:
+    
+    #categories in sv443 Joke Api
+    defCategories = ['Programming','Miscellaneous','Dark']
+    
+    #blacklist tags
+    defBlackListTags = ['nsfw','religious','political','racist','sexist']
+
+    #types
+    defTypes = ['single','twopart']
+
+    #parameters used to build request
+    params = dict()
+
+    #default url
+    urlreq = 'https://sv443.net/jokeapi/v2/joke/'
+
+    #initialising parameters for the api
+    def __init__(self,categories=[],flags = [],idRange=[],type = None,searchstring =None):
+        self.categories = categories
+        self.flags = flags
+        self.idRange = idRange
+        self.type = type
+        self.searchstring = searchstring
+    
+    def __repr__(self):
+        return '{self.__class__.__name__}({self.categories},{self.flags},{self.idRange},{self.type},{self.searchstring})'.format(self=self)
+    
+    def __str__(self):
+        return '({self.categories},{self.flags},{self.idRange},{self.type},{self.searchstring})'.format(self=self)
+
+
+
+    #function to get joke
     def getjoke(self):
-        for i in ["racist","sexist","religious"]:
-            if i not in self.flags:
-                self.flags.append(i) #adding flags two avoid offensive jokes.
-        urlstring = "https://sv443.net/jokeapi/v2/joke"
-        flagstring=""
-        typp="akaka"
-        if isempty(self.category):
-            urlstring=urlstring+"/Any"
+
+        #adding categories to request url
+        if len(self.categories) == 0:
+            self.urlreq += "Any"
         else:
-            catstring="/"+self.category[0]
-            for categ in self.category:
-                if self.category.index(categ)!=0:
-                    catstring=catstring+","+categ
-            urlstring=urlstring+catstring
-        if isempty(self.flags)==False:
-            flagstring="?blacklistFlags="+self.flags[0]
+            for category in self.categories:
+                if category not in Jokepy.defCategories:
+
+                    #raise exception if the category is not valid
+                    error_message = 'Invalid Category : {} , Available Categories : {}'.format(category,Jokepy.defCategories)
+                    raise InvalidCategoryException(error_message)
+                else:
+                    #building the url if the category is valid
+                    self.urlreq += category + ","
+            #removing the last comma
+            self.urlreq = self.urlreq[:-1]
+
+        #..... parameters ....(blackListflags)
+        if len(self.flags) != 0:
+            self.params['blacklistFlags'] = ""
             for flag in self.flags:
-                if self.flags.index(flag)!=0:
-                    flagstring=flagstring+","+flag
-            urlstring=urlstring+flagstring
-        if len(self.type)!=0 and len(self.type)!=2:
-            typp="akaka" #flag
-            if flagstring!="":
-                urlstring=urlstring+"&type="+self.type[0]
+                
+                if flag not in Jokepy.defBlackListTags:
+
+                    #raise exception if flag is not valid
+                    error_message = 'Invalid Flag : {} , Available Flags : {}'.format(flag,Jokepy.defBlackListTags)
+                    raise InvalidFlagException(error_message)
+                else:
+
+                    self.params['blacklistFlags'] += flag + ","
+
+            #removing the last comma
+            self.params['blacklistFlags'] = self.params['blacklistFlags'][:-1]
+        
+        if self.type is not None:
+            if self.type not in Jokepy.defTypes:
+
+                error_message = 'Invalid Type : {} , Available Types : {}'.format(self.type,Jokepy.defTypes)
+                raise InvalidTypeException(error_message)
             else:
-                urlstring=urlstring+"?type="+self.type[0]
-            
-        if self.searchstring!="":
-            if flagstring=="" and typp=="":
-                urlstring=urlstring+"?contains="+self.searchstring
+                self.params['type'] = self.type
+
+        
+        #-----idrange----
+        if len(self.idRange) != 0:
+
+            if len(self.idRange) != 2:
+                #minimum number of elements in the idRange list should be 2
+                error_message = 'idRange should be a list with two numbers'
+                raise InvalidIdRangeException(error_message)
+
+            if self.idRange[0] < 0 or self.idRange[1] < 0 or self.idRange[1] < self.idRange[0]:
+
+                error_message = 'idRange error . Please check if the value is negative or the first value is greater than the second'
+                raise InvalidIdRangeException(error_message)
             else:
-                urlstring=urlstring+"&contains="+self.searchstring
-        print(urlstring)
+                self.params['idRange'] = ""
+                for rng in self.idRange:
+                    self.params['idRange'] += str(rng) + ","
+                #removing the last comma
+                self.params['idRange'] = self.params['idRange'][:-1]
+        
+        #-----searchstring---
+        if self.searchstring is not None:
+            self.params['contains'] = self.searchstring
+        
         try:
-            jr=requests.get(urlstring)
-            jokereq=jr.json()
-            print(jr.status_code)
-            if jokereq['error']==False:
-                if jokereq['type'] == "single":
-                    return [jokereq['joke'],"null",jokereq]
-                elif jokereq['type'] == "twopart":
-                    return [jokereq['setup'],jokereq['delivery'],jokereq]
-            else:
-                return ["Error!",jokereq['message'],"Please try again!"]
+            
+            #request sv443 jokeapi url
+            r = requests.get(self.urlreq , params=self.params)
+            print(r.url)
         except Exception as e:
-            return ["Error",str(e) +" "+jr.status_code ,"Url might be invalid"]
+            #return error if the request 
+            return {'error' : 'Request Failed','errorinfo': str(e)}
+
+        #return json response
+        return r.json()
 
 
-strst = "\n___________________\n\n\nCategories : Miscellaneous, Programming, Dark \n Black List: nsfw, religious, political, racist, sexist \nTypes :single, twopart\n you can add the seacrh string too\n\n\n"
-strst2="a=jk.retjoke(category=[],flags=[],type=[],searchstring="") #create object a ,racist ,sexist and religious jokes are filtered out by default please check the source at : https://github.com/aksty/Jokepy\n"
-strst3="a.getjoke() returns a list joke,second part(if the joke as two parts,otherwise null),json from url(dictionary) if everything works \notherwise returns list with error messages\n\n_____________________\n"
 
-info=strst+strst2+strst3
+
+
+
+
+
+
+
+
+
+
+
+        
+                    
+            
+
+
