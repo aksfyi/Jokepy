@@ -131,22 +131,3 @@ class Jokepy:
 
         #return json response
         return r.json()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-                    
-            
-
-
