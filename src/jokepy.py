@@ -37,10 +37,10 @@ class Jokepy:
     urlreq = 'https://sv443.net/jokeapi/v2/joke/'
 
     #initialising parameters for the api
-    def __init__(self,categories=[],flags = [],idRange=[],type = None,searchstring =None):
-        self.categories = categories
-        self.flags = flags
-        self.idRange = idRange
+    def __init__(self,categories = None,flags = None,idRange = None,type = None,searchstring =None):
+        self.categories = [] if categories is None else categories
+        self.flags = [] if flags is None else flags
+        self.idRange = [] if idRange is None else idRange
         self.type = type
         self.searchstring = searchstring
     
@@ -124,7 +124,6 @@ class Jokepy:
             
             #request sv443 jokeapi url
             r = requests.get(self.urlreq , params=self.params)
-            print(r.url)
         except Exception as e:
             #return error if the request 
             return {'error' : 'Request Failed','errorinfo': str(e)}
