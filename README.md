@@ -3,9 +3,11 @@
 Python Wrapper for sv443 JokeApi
 
 ## Installation (Install versions > 1.0.0)
+    
 
     pip install jokepy
 
+-Clone the repo and use jokepy.py. version of jokepy in pypi is not updated
 ## Importing Jokepy
 
     from jokepy import Jokepy
