@@ -54,6 +54,7 @@ class Jokepy:
 
     #function to get joke
     def getjoke(self):
+        self.urlreq = 'https://sv443.net/jokeapi/v2/joke/'
 
         #adding categories to request url
         if len(self.categories) == 0:
